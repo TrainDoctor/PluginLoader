@@ -1,4 +1,7 @@
 import uuid
+import shutil
+import contextlib
+from pathlib import Path
 from json.decoder import JSONDecodeError
 
 from aiohttp import ClientSession, web
@@ -24,7 +27,8 @@ class Utilities:
             "allow_remote_debugging": self.allow_remote_debugging,
             "disallow_remote_debugging": self.disallow_remote_debugging,
             "set_setting": self.set_setting,
-            "get_setting": self.get_setting
+            "get_setting": self.get_setting,
+            "uninstall_decky": self.uninstall_decky
         }
 
         if context:
@@ -155,9 +159,33 @@ class Utilities:
 
     async def get_setting(self, key, default):
         return self.context.settings.getSetting(key, default)
-
+    
     async def set_setting(self, key, value):
         return self.context.settings.setSetting(key, value)
+
+    async def uninstall_decky(keepConfig=True) -> None:
+        username: str = helpers.get_user()
+        user_dir = Path(f"~{username}").expanduser()
+        homebrew_dir = user_dir / "homebrew"
+        possible_unit_paths = [
+            user_dir / ".config" / "systemd" / "user" / helpers.PLUGIN_LOADER_UNIT,
+            Path("/etc") / "systemd" / "system" / helpers.PLUGIN_LOADER_UNIT
+        ]
+
+        # https://stackoverflow.com/a/27045091
+        with contextlib.suppress(FileNotFoundError):
+            # Disable and remove services
+            helpers.disable_systemd_unit(helpers.PLUGIN_LOADER_UNIT, now=True)
+            for path in possible_unit_paths:
+                path.unlink(missing_ok=True)
+
+            # Remove temporary folder if it exists from the install process
+            shutil.rmtree("/tmp/plugin_loader")
+
+            if keepConfig:
+                shutil.rmtree(homebrew_dir / "services")
+            else:
+                shutil.rmtree(homebrew_dir)
 
     async def allow_remote_debugging(self):
         await helpers.start_systemd_unit(helpers.REMOTE_DEBUGGER_UNIT)

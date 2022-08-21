@@ -9,6 +9,7 @@ import certifi
 from aiohttp.web import Response, middleware
 
 REMOTE_DEBUGGER_UNIT = "steam-web-debug-portforward.service"
+PLUGIN_LOADER_UNIT = "plugin_loader.service"
 
 # global vars
 csrf_token = str(uuid.uuid4())
@@ -86,6 +87,13 @@ def get_homebrew_path(home_path = None) -> str:
 async def is_systemd_unit_active(unit_name: str) -> bool:
     res = subprocess.run(["systemctl", "is-active", unit_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return res.returncode == 0
+
+async def disable_systemd_unit(unit_name: str, now: bool = True) -> subprocess.CompletedProcess:
+    cmd = ["systemctl", "disable", "--now", unit_name]
+    if not now:
+        cmd.remove("--now")
+
+    return subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 async def stop_systemd_unit(unit_name: str) -> subprocess.CompletedProcess:
     cmd = ["systemctl", "stop", unit_name]
