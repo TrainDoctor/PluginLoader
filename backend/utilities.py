@@ -159,7 +159,7 @@ class Utilities:
 
     async def get_setting(self, key, default):
         return self.context.settings.getSetting(key, default)
-    
+
     async def set_setting(self, key, value):
         return self.context.settings.setSetting(key, value)
 
