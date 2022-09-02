@@ -1,6 +1,7 @@
 import re
 import ssl
 import subprocess
+import logging
 import uuid
 from subprocess import check_output
 from time import sleep
@@ -92,6 +93,8 @@ async def disable_systemd_unit(unit_name: str, now: bool = False) -> subprocess.
     cmd = ["systemctl", "disable", "--now", unit_name]
     if not now:
         cmd.remove("--now")
+
+    logging.debug(f"Removing systemd unit (term: {now})")
 
     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
