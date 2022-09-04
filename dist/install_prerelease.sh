@@ -13,7 +13,7 @@ sudo -u $SUDO_USER mkdir -p "${HOMEBREW_FOLDER}/services"
 sudo -u $SUDO_USER mkdir -p "${HOMEBREW_FOLDER}/plugins"
 
 # Download latest release and install it
-RELEASE=$(curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' | jq -r "first(.[] | select(.prerelease == "true"))")
+RELEASE=$(curl -s 'https://api.github.com/repos/TrainDoctor/decky-loader/releases' | jq -r "first(.[] | select(.prerelease == "true"))")
 if [[ "$RELEASE" == "" ]]; then 
     echo "ERROR, RELEASE NOT FOUND" && exit -1 
 fi
@@ -36,6 +36,7 @@ systemctl stop plugin_loader 2> /dev/null
 systemctl disable plugin_loader 2> /dev/null
 rm -f /etc/systemd/system/plugin_loader.service
 rm -f /etc/systemd/system/plugin_loader_uninstaller.service
+rm -f /etc/systemd/system/plugin_loader_uninstall.service
 
 # add systemd service for decky-loader
 printf "creating systemd service for decky\n"
@@ -56,7 +57,7 @@ EOM
 
 # add systemd oneshot service template for uninstalling decky-loader
 printf "creating template systemd service for uninstalling decky\n"
-cat > /etc/systemd/system/plugin_loader_uninstall@.service <<- EOM
+cat > /etc/systemd/system/plugin_loader_uninstall.service <<- EOM
 [Unit]
 Description="Decky Loader Uninstaller"
 [Service]
@@ -69,27 +70,36 @@ WorkingDirectory=${HOMEBREW_FOLDER}
 WantedBy=multi-user.target
 EOM
 
-rm -f /etc/systemd/system/plugin_loader_uninstall@.service
-
 # add uninstaller script
 printf "creating uninstaller script for decky\n"
 cat > ${HOMEBREW_FOLDER}/.uninstall.sh <<- EOM
-[ "$UID" -eq 0 ] || exec sudo "$0" "$@"
+#!/bin/bash
 
-echo $1 | tr '[:upper:]' '[:lower:]' > $RETAINPLUGINS
+[ "\$UID" -eq 0 ] || exec sudo "\$0" "\$@"
+
+RETAINPLUGINS=$(echo \$1 | tr '[:upper:]' '[:lower:]')
 
 echo "Uninstalling decky-loader"
 
-USER_DIR="$(getent passwd $SUDO_USER | cut -d: -f6)"
-HOMEBREW_FOLDER="${USER_DIR}/homebrew"
+USER_DIR="\$(getent passwd \$SUDO_USER | cut -d: -f6)"
 
-rm -rf $HOMEBREW_FOLDER/services $HOMEBREW_FOLDER/settings
+rm -rf \${USER_DIR}/homebrew/services \${USER_DIR}/homebrew/settings
 
-if [[ "$RETAINPLUGINS" =~ "true" ]]
+if [[ "\$RETAINPLUGINS" =~ "False" ]]; then
+    echo "Removing plugins"
+    rm -rf \${USER_DIR}/homebrew/plugins
+fi
+
+systemctl stop plugin_loader.service
+
+rm -f /etc/systemd/system/plugin_loader.service
+rm -f /etc/systemd/system/plugin_loader_uninstall.service
+rm -f \${USER_DIR}/homebrew/.uninstall.sh
+
+exit
 
 EOM
 
 systemctl daemon-reload
-systemctl enable plugin_loader_uninstall@.service
 systemctl enable plugin_loader
 systemctl start plugin_loader

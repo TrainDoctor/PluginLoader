@@ -11,7 +11,7 @@ from aiohttp.web import Response, middleware
 
 REMOTE_DEBUGGER_UNIT = "steam-web-debug-portforward.service"
 PLUGIN_LOADER_UNIT = "plugin_loader.service"
-UNINSTALLER_UNIT = "plugin_loader_uninstaller"
+UNINSTALLER_UNIT = "plugin_loader_uninstall"
 
 # global vars
 csrf_token = str(uuid.uuid4())
