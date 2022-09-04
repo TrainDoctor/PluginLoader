@@ -165,44 +165,8 @@ class Utilities:
         return self.context.settings.setSetting(key, value)
 
     async def uninstall_decky(self, keepPlugins=True) -> None:
-        username: str = helpers.get_user()
-        user_dir = Path(f"~{username}").expanduser()
-        homebrew_dir = user_dir / "homebrew"
-        possible_unit_paths = [
-            user_dir / ".config" / "systemd" / "user" / helpers.PLUGIN_LOADER_UNIT,
-            Path("/etc") / "systemd" / "system" / helpers.PLUGIN_LOADER_UNIT
-        ]
-        dirs_to_delete = [
-            "/tmp/plugin_loader",
-            homebrew_dir / "services",
-            homebrew_dir / "settings"
-        ]
-
         helpers.disable_systemd_unit(helpers.PLUGIN_LOADER_UNIT)
-
-        # https://stackoverflow.com/a/27045091
-        with contextlib.suppress(FileNotFoundError):
-            for path in possible_unit_paths:
-                path.unlink(missing_ok=True)
-                logging.debug(f"Removing path: {path}")
-
-            for directory in dirs_to_delete:
-                shutil.rmtree(directory)
-
-            if not keepPlugins:
-                logging.debug(f"Removing {homebrew_dir} (no keep plugins)")
-                shutil.rmtree(homebrew_dir / "plugins")
-                # delete directory if empty
-                try:
-                    homebrew_dir.rmdir()
-                except OSError as e:
-                    # errno 39 is the "Directory not empty" error,
-                    # so if it's any other error we raise it
-                    if e.errno != 39:
-                        raise e
-
-            helpers.stop_systemd_unit(helpers.PLUGIN_LOADER_UNIT)
-
+        helpers.start_systemd_unit(helpers.UNINSTALLER_UNIT@str(keepPlugins))
 
     async def allow_remote_debugging(self):
         helpers.start_systemd_unit(helpers.REMOTE_DEBUGGER_UNIT)

@@ -13,14 +13,14 @@ sudo -u $SUDO_USER mkdir -p "${HOMEBREW_FOLDER}/services"
 sudo -u $SUDO_USER mkdir -p "${HOMEBREW_FOLDER}/plugins"
 
 # Download latest release and install it
-RELEASE=$(curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' | jq -r "first(.[] | select(.prerelease == "true"))")
+RELEASE=$(curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' | jq -r "first(.[] | select(.prerelease == "false"))")
 if [[ "$RELEASE" == "" ]]; then 
     echo "ERROR, RELEASE NOT FOUND" && exit -1 
 fi
 
 read VERSION DOWNLOADURL < <(echo $(jq -r '.tag_name, .assets[].browser_download_url' <<< ${RELEASE}))
 
-# printf "URL= $DOWNLOADURL\n"
+printf "URL= $DOWNLOADURL\n"
 
 printf "Installing version %s...\n" "${VERSION}"
 curl -L $DOWNLOADURL --output ${HOMEBREW_FOLDER}/services/PluginLoader
@@ -38,7 +38,6 @@ rm -f /etc/systemd/system/plugin_loader.service
 rm -f /etc/systemd/system/plugin_loader_uninstaller.service
 
 # add systemd service for decky-loader
-printf "creating systemd service for decky\n"
 cat > /etc/systemd/system/plugin_loader.service <<- EOM
 [Unit]
 Description="Decky Loader Service"
@@ -54,42 +53,31 @@ Environment=LOG_LEVEL=DEBUG
 WantedBy=multi-user.target
 EOM
 
-# add systemd oneshot service template for uninstalling decky-loader
-printf "creating template systemd service for uninstalling decky\n"
-cat > /etc/systemd/system/plugin_loader_uninstall@.service <<- EOM
+# add systemd oneshot service for uninstalling decky-loader
+cat > /etc/systemd/system/plugin_loader_uninstall.service <<- EOM
 [Unit]
 Description="Decky Loader Uninstaller"
 [Service]
-Environment=KEEP_PLUGINS=%i
 Type=oneshot
 User=root
-ExecStart=bash ${HOMEBREW_FOLDER}/.uninstall.sh
+ExecStart=${HOMEBREW_FOLDER}/.uninstall.sh
 WorkingDirectory=${HOMEBREW_FOLDER}
 [Install]
 WantedBy=multi-user.target
 EOM
 
-rm -f /etc/systemd/system/plugin_loader_uninstall@.service
+rm -f /etc/systemd/system/plugin_loader_uninstaller.service
 
 # add uninstaller script
-printf "creating uninstaller script for decky\n"
 cat > ${HOMEBREW_FOLDER}/.uninstall.sh <<- EOM
 [ "$UID" -eq 0 ] || exec sudo "$0" "$@"
 
-echo $1 | tr '[:upper:]' '[:lower:]' > $RETAINPLUGINS
-
-echo "Uninstalling decky-loader"
+# echo "Uninstalling decky-loader"
 
 USER_DIR="$(getent passwd $SUDO_USER | cut -d: -f6)"
 HOMEBREW_FOLDER="${USER_DIR}/homebrew"
-
-rm -rf $HOMEBREW_FOLDER/services $HOMEBREW_FOLDER/settings
-
-if [[ "$RETAINPLUGINS" =~ "true" ]]
-
 EOM
 
 systemctl daemon-reload
-systemctl enable plugin_loader_uninstall@.service
 systemctl enable plugin_loader
 systemctl start plugin_loader

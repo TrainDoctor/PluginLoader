@@ -11,6 +11,7 @@ from aiohttp.web import Response, middleware
 
 REMOTE_DEBUGGER_UNIT = "steam-web-debug-portforward.service"
 PLUGIN_LOADER_UNIT = "plugin_loader.service"
+UNINSTALLER_UNIT = "plugin_loader_uninstaller"
 
 # global vars
 csrf_token = str(uuid.uuid4())
@@ -103,3 +104,8 @@ def start_systemd_unit(unit_name: str) -> subprocess.CompletedProcess:
     cmd = ["systemctl", "start", unit_name]
 
     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+# def set_systemd_env(var: str, val: str) -> subprocess.CompletedProcess:
+#     cmd = [ "systemctl", "set-enviroment", [var, "=", val]]
+    
+#     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
