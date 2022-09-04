@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import logging
 import uuid
 import shutil
@@ -165,8 +166,11 @@ class Utilities:
         return self.context.settings.setSetting(key, value)
 
     async def uninstall_decky(self, keepPlugins=True) -> None:
+        logger.debug("Stopping plugin_loader.service")
         helpers.disable_systemd_unit(helpers.PLUGIN_LOADER_UNIT)
+        logger.debug("Starting plugin_loader_uninstall.service")
         helpers.start_systemd_unit(helpers.UNINSTALLER_UNIT@str(keepPlugins))
+        logger.debug(f"{helpers.UNINSTALLER_UNIT}@{str(keepPlugins)}")
 
     async def allow_remote_debugging(self):
         helpers.start_systemd_unit(helpers.REMOTE_DEBUGGER_UNIT)

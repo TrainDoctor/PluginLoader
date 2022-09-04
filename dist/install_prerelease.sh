@@ -61,10 +61,9 @@ cat > /etc/systemd/system/plugin_loader_uninstall.service <<- EOM
 [Unit]
 Description="Decky Loader Uninstaller"
 [Service]
-Environment=KEEP_PLUGINS=%i
 Type=oneshot
 User=root
-ExecStart=bash ${HOMEBREW_FOLDER}/.uninstall.sh
+ExecStart=bash ${HOMEBREW_FOLDER}/.uninstall.sh %i
 WorkingDirectory=${HOMEBREW_FOLDER}
 [Install]
 WantedBy=multi-user.target
@@ -90,7 +89,9 @@ if [[ "\$RETAINPLUGINS" =~ "False" ]]; then
     rm -rf \${USER_DIR}/homebrew/plugins
 fi
 
+systemctl disable plugin_loader.service
 systemctl stop plugin_loader.service
+sleep 20
 
 rm -f /etc/systemd/system/plugin_loader.service
 rm -f /etc/systemd/system/plugin_loader_uninstall.service
@@ -101,5 +102,6 @@ exit
 EOM
 
 systemctl daemon-reload
+systemctl enable plugin_loader_uninstall
 systemctl enable plugin_loader
 systemctl start plugin_loader
