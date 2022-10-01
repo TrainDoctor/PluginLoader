@@ -85,6 +85,7 @@ class RouterHook extends Logger {
           });
         }
       });
+      document.getElementById('root')?.focus();
       this.debug('Rerendered routes list');
       return children;
     };
