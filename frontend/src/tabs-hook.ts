@@ -64,6 +64,7 @@ class TabsHook extends Logger {
       let newQATabRenderer: any;
       this.cNodePatch = afterPatch(scrollRoot.stateNode, 'render', (_: any, ret: any) => {
         if (!this.quickAccess && ret.props.children.props.children[4]) {
+          document.getElementById('root')?.focus();
           this.quickAccess = ret?.props?.children?.props?.children[4].type;
           newQA = (...args: any) => {
             const ret = this.quickAccess.type(...args);
