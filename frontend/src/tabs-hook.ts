@@ -101,6 +101,7 @@ class TabsHook extends Logger {
       });
       this.cNode = scrollRoot;
       this.cNode.stateNode.forceUpdate();
+      document.getElementById('root')?.focus();
     })();
   }
 
