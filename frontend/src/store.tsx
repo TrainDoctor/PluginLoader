@@ -1,5 +1,3 @@
-import { ConfirmModal, showModal, staticClasses } from 'decky-frontend-lib';
-
 import { Plugin } from './plugin';
 
 export interface StorePluginVersion {
@@ -11,16 +9,6 @@ export interface StorePlugin {
   id: number;
   name: string;
   versions: StorePluginVersion[];
-  author: string;
-  description: string;
-  tags: string[];
-}
-
-export interface LegacyStorePlugin {
-  artifact: string;
-  versions: {
-    [version: string]: string;
-  };
   author: string;
   description: string;
   tags: string[];
