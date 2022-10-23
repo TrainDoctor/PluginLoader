@@ -56,11 +56,13 @@ const PluginCard: FC<PluginCardProps> = ({ plugin }) => {
         }}
       >
         <div className="deckyStoreCardHeader" style={{ display: 'flex', alignItems: 'center' }}>
-          <a
+          <p
             style={{ fontSize: '18pt', padding: '10px' }}
             className={joinClassNames(staticClasses.Text)}
             // onClick={() => Router.NavigateToExternalWeb('https://github.com/' + plugin.artifact)}
-          ></a>
+          >
+            {plugin.name}
+          </p>
         </div>
         <div
           style={{
