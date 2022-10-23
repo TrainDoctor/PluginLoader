@@ -152,19 +152,6 @@ const PluginCard: FC<PluginCardProps> = ({ plugin }) => {
                   {tag == 'root' ? 'Requires root' : tag}
                 </span>
               ))}
-              {isLegacyPlugin(plugin) && (
-                <span
-                  className="deckyStoreCardTag deckyStoreCardLegacyTag"
-                  style={{
-                    color: '#232120',
-                    padding: '5px',
-                    borderRadius: '5px',
-                    background: '#EDE841',
-                  }}
-                >
-                  legacy
-                </span>
-              )}
             </p>
           </div>
         </div>
