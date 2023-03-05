@@ -21,14 +21,13 @@ jobs:
       run: |
         STUB_CHANGED="false"
         PATHS=(plugin plugin/decky_plugin.pyi)
-        REF=HEAD^
-        FILES=$(git diff $REF --name-only -- ${PATHS[@]} | jq -Rsc 'split("\n")[:-1] | join (",")')
+        FILES=$(git diff HEAD^ HEAD --name-only -- ${PATHS[@]} | jq -Rsc 'split("\n")[:-1] | join (",")')
         if [[ "$FILES" == *"plugin/decky_plugin.pyi"* ]]; then
           $STUB_CHANGED="true"
         fi
         echo "has_changed=$STUB_CHANGED" >> $GITHUB_OUTPUT
 
-    - name: Pushes test file
+    - name: Push test file
       if: ${{ steps.changed-stub.outputs.has_changed }} == "true"
       uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
       env:
