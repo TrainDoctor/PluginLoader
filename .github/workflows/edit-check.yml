@@ -20,7 +20,7 @@ jobs:
       id: changed-stub
       run: |
         STUB_CHANGED="false"
-        PATHS=(plugin/decky_plugin.pyi)
+        PATHS=(plugin plugin/decky_plugin.pyi)
         REF=HEAD^
         FILES=$(git diff ${REF[@]} --name-only --submodule=diff -- ${PATHS[@]} | jq -Rsc 'split("\n")[:-1] | join (",")')
         if [[ "$FILES" == *"plugin/decky_plugin.pyi"* ]]; then
