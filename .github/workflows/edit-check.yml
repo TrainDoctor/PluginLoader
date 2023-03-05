@@ -21,7 +21,8 @@ jobs:
       run: |
         STUB_CHANGED="false"
         PATHS=(plugin plugin/decky_plugin.pyi)
-        FILES=$(git diff ${{ github.sha }}^..${{ github.sha }} --name-only -- ${PATHS[@]} | jq -Rsc 'split("\n")[:-1] | join (",")')
+        SHA=${{ github.sha }}
+        FILES=$(git diff $SHA^..$SHA --name-only -- ${PATHS[@]} | jq -Rsc 'split("\n")[:-1] | join (",")')
         if [[ "$FILES" == *"plugin/decky_plugin.pyi"* ]]; then
           $STUB_CHANGED="true"
         fi
