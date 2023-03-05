@@ -23,7 +23,7 @@ jobs:
         PATHS=(plugin/decky_plugin.pyi)
         REF=HEAD^
         FILES=$(git diff ${REF[@]} --name-only --submodule=diff -- ${PATHS[@]} | jq -Rsc 'split("\n")[:-1] | join (",")')
-        if [[ "$FILES" == *"plugin/decky_plugin.pyi"* ]] then;
+        if [[ "$FILES" == *"plugin/decky_plugin.pyi"* ]]; then
           $STUB_CHANGED="true"
         fi
         echo "has_changed=$STUB_CHANGED" >> $GITHUB_OUTPUT
