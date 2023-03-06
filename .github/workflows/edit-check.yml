@@ -26,11 +26,12 @@ jobs:
         FILES=$(git diff $SHA_PREV..$SHA --name-only -- ${PATHS[@]} | jq -Rsc 'split("\n")[:-1] | join (",")')
         if [[ "$FILES" == *"plugin/decky_plugin.pyi"* ]]; then
           $STUB_CHANGED="true"
+          echo "Stub has changed, pushing updated stub"
         fi
         echo "has_changed=$STUB_CHANGED" >> $GITHUB_OUTPUT
 
-    - name: Push test file
-      if: ${{ steps.changed-stub.outputs.has_changed }} == "true"
+    - name: Push updated stub
+      if: ${{ steps.changed-stub.outputs.has_changed }} != "false"
       uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
       env:
         API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
@@ -38,5 +39,5 @@ jobs:
         source_file: 'plugin/decky_plugin.pyi'
         destination_repo: 'SteamDeckHomebrew/decky-plugin-template'
         user_email: '11465594+TrainDoctor@users.noreply.github.com'
-        user_name: 'dmnemec'
+        user_name: 'TrainDoctor'
         commit_message: 'Updated template with latest plugin stub changes'
