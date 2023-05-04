@@ -4,12 +4,13 @@ import {
   DialogControlsSection,
   DialogControlsSectionHeader,
   Field,
+  Navigation,
   TextField,
   Toggle,
 } from 'decky-frontend-lib';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaFileArchive, FaLink, FaReact, FaSteamSymbol } from 'react-icons/fa';
+import { FaFileArchive, FaLink, FaReact, FaSteamSymbol, FaTerminal } from 'react-icons/fa';
 
 import { setShouldConnectToReactDevTools, setShowValveInternal } from '../../../../developer';
 import { installFromURL } from '../../../../store';
